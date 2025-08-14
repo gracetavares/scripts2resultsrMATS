@@ -1,4 +1,5 @@
 **README**
+
 Este script tem como objetivo realizar a comparação entre os resultados do rMATS e do arquivo GTF retirandos os transcripts_id em comparação com os gene_id.
 
 *Configurações necessárias:*
