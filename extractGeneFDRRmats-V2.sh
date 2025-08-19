@@ -33,9 +33,19 @@ fi
 # Processar todos os arquivos .txt na pasta
 for INPUT_FILE in "$INPUT_DIR"/*.txt; do
     OUTPUT_FILE="$OUTPUT_DIR/$(basename "$INPUT_FILE" .txt)_filtered.txt"
-    
+    EVENT_TYPE=$(basename "$OUTPUT_FILE" .txt | cut -d'.' -f1)
+    echo "Processando evento: $EVENT_TYPE"
+
+    if [ $EVENT_TYPE == "MXE" ]; then
+        awk -F "\t" -v threshold=$DIFF_THRESHOLD 'NR==1 || ($22 < 0.05 && ($25 >= threshold || $25 <= -threshold))' "$INPUT_FILE" > "$OUTPUT_FILE"
+    elif [[ "$EVENT_TYPE" == "A3SS" || "$EVENT_TYPE" == "A5SS" || "$EVENT_TYPE" == "SE" || "$EVENT_TYPE" == "RI" ]]; then
+        awk -F "\t" -v threshold=$DIFF_THRESHOLD 'NR==1 || ($20 < 0.05 && ($23 >= threshold || $23 <= -threshold))' "$INPUT_FILE" > "$OUTPUT_FILE"
+    else
+        echo "Tipo de evento desconhecido: $EVENT_TYPE"
+        continue
+    fi
     # Filtrar pelo FDR < 0.05 e valores altos de IncLevelDifference (próximos de 1 ou -1)
-    awk -F "\t" -v threshold=$DIFF_THRESHOLD 'NR==1 || ($20 < 0.05 && ($23 >= threshold || $23 <= -threshold))' "$INPUT_FILE" > "$OUTPUT_FILE"
+    #awk -F "\t" -v threshold=$DIFF_THRESHOLD 'NR==1 || ($20 < 0.05 && ($23 >= threshold || $23 <= -threshold))' "$INPUT_FILE" > "$OUTPUT_FILE"
     
     echo "Arquivo filtrado: $OUTPUT_FILE"
 done

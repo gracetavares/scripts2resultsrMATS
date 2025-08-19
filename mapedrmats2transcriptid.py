@@ -103,13 +103,21 @@ for _, line in rmats.iterrows():
     if chrom.startswith("chr"):
         chrom = chrom[3:]
     
-    evento_id = line.get('ID', line.iloc[0])    
+    #evento_id = line.get('ID', line.iloc[0])  
+    evento_id = f"{line['chr']}:{start}-{end}:{strand}:{args.tipo_evento}"  
 
      #verifica overlap entre os transcritos
     for feat in db.region(region=(chrom, start-5, end+5), strand=strand,
                           featuretype='exon'):
         tid = feat.attributes.get('transcript_id', ['NA'])[0]
         gid = feat.attributes.get('gene_id', ['NA'])[0]
+
+        #coordenadas dos transcriptIDs
+        t_start = feat.start
+        t_end = feat.end
+        t_chrom = feat.chrom
+
+        # Adiciona o resultado à lista
         results.append({
             "Evento": line['ID'],
             "Gene_ID": gid,
@@ -117,7 +125,9 @@ for _, line in rmats.iterrows():
             "Chr": chrom,
             "Start": start,
             "End": end,
-            "Strand": strand
+            "Strand": strand,
+            "Start_GTF": t_start,
+            "End_GTF": t_end
         })
 
 ######################
